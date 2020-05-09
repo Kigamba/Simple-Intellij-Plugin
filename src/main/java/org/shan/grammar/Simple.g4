@@ -3,49 +3,93 @@ grammar Simple;
 //*************************
 //****** Lexer rules ******
 //*************************
-IDENTIFIER
-    :   [A-Za-z] [A-Za-z0-9]*
+SPACE
+    :   [ \n] -> skip
+    ;
+
+STRING_1
+    // WORKING
+    //: '"' ~('"')* '"'
+    : '"' ~('"')* '"'
+    ;
+
+STRING_2
+    : '\'' ~('\'')* '\''
+    ;
+
+NUMBER_
+    :   ('+' '-')? ([0-9]+) ('.' [0-9]+)?
     ;
 
 WHITESPACE
-    :   [ \n] -> skip
+    :   [ \t\r\n] -> skip
+    ;
+
+LEFT_CURLY
+    : '{'
+    ;
+
+RIGHT_CURLY
+    :   '}'
+    ;
+
+LEFT_BRAC
+    : '['
+    ;
+
+RIGHT_BRAC
+    : ']'
+    ;
+
+COMMA
+    : ','
+    ;
+
+COLON
+    : ':'
+    ;
+
+TRUE
+    : 'true'
+    ;
+
+FALSE
+    : 'false'
     ;
 
 //*************************
 //***** Parser rules ******
 //*************************
-simpleFile
-    :   definition*
+json
+    :   value*
     ;
 
-definition
-    :   functionDefinition
+value
+    :   object | array | string | number | bool | 'null'
     ;
 
-functionDefinition
-    :   'function' IDENTIFIER '(' ')' ('returns' type)? '{' functionBody '}'
+string
+    :   STRING_1 | STRING_2
     ;
 
-functionBody
-    :   statement*
+number
+    :   NUMBER_
     ;
 
-statement
-    :   variableDefinition | assignmentStatement | functionInvocation
+bool
+    :   'true' | 'false'
     ;
 
-variableDefinition
-    :   type IDENTIFIER (';' | ('=' functionInvocation)?)
+array
+    :   '[' value (',' value)* ']'
+    | '[' ']'
     ;
 
-type
-    :   'int' | 'string'
+object
+    :   '{' keyValuePair (',' keyValuePair)* '}'
+    | '{' '}'
     ;
 
-assignmentStatement
-    :   IDENTIFIER '=' functionInvocation
-    ;
-
-functionInvocation
-    :   IDENTIFIER '(' ')' ';'
+keyValuePair
+    :   string ':' value
     ;
